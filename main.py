@@ -29,7 +29,7 @@ class LambdaStack(TerraformStack):
                 runtime="python3.8",
                 memory_size=128,
                 timeout=60,
-                role="arn:aws:iam::868291412192:role/LabRole",
+                role="arn:aws:iam::147552475298:role/LabRole", #c'est l'id du compte aws du cours que je suppose être le votre, le mien est: 868291412192 et tout marchait avec
                 filename= code.path,
                 handler="lambda_function.lambda_handler",
                 environment={"variables":{"OUTPUT_QUEUE_URL":output_queue.url}}
