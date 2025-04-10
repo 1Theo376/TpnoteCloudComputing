@@ -2,48 +2,40 @@ import json
 import os
 import boto3
 
-sqs = boto3.client('sqs')
+sqs = boto3.client('sqs') #client is required to interact with sqs
 OUTPUT_QUEUE_URL = os.getenv("OUTPUT_QUEUE_URL")  # URL de la file SQS de sortie
 
 def lambda_handler(event, context):
-    try:
-        results = []
+    results = []
 
-        # Boucler sur chaque message de la requête
-        for record in event['Records']:
-            message = json.loads(record['body'])
-            number1 = float(message['number1'])
-            number2 = float(message['number2'])
-            operation = message['operation']
+    for record in event['Records']:
+        message = json.loads(record['body'])
+        number1 = float(message['number1'])
+        number2 = float(message['number2'])
+        operation = message['operation']
 
-            if operation == "+":
-                result = number1 + number2
-            elif operation == "-":
-                result = number1 - number2
-            elif operation == "*":
-                result = number1 * number2
-            elif operation == "/":
-                if number2 == 0:
-                    result = "Division par zéro impossible"
-                else:
-                    result = number1 / number2
+        if operation == "+":
+            result = number1 + number2
+        elif operation == "-":
+            result = number1 - number2
+        elif operation == "*":
+            result = number1 * number2
+        elif operation == "/":
+            if number2 == 0:
+                result = "La division par zéro est impossible"
             else:
-                result = "Opération non supportée"
+                result = number1 / number2
+        else:
+            result = "Opération inconnue"
 
-            sqs.send_message(
+        sqs.send_message(
                 QueueUrl=OUTPUT_QUEUE_URL,
                 MessageBody=json.dumps({"result": result})
             )
 
-            results.append(result)
+        results.append(result)
 
-        return {
-            'statusCode': 200,
-            'body': json.dumps(results)
-        }
-
-    except Exception as e:
-        return {
-            'statusCode': 500,
-            'body': str(e)
+    return {
+        'statusCode': 200,
+        'body': json.dumps(results)
         }
